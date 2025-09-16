@@ -1,122 +1,146 @@
 import cv2
 import os
+import string
 
+def setup_directories(base_dir='SignImage48x48/'):
+    """Create directory structure for storing sign language images"""
+    try:
+        if not os.path.exists(base_dir):
+            os.mkdir(base_dir)
+        
+        # Create blank directory
+        blank_dir = os.path.join(base_dir, 'blank')
+        if not os.path.exists(blank_dir):
+            os.mkdir(blank_dir)
+        
+        # Create A-Z directories
+        for letter in string.ascii_uppercase:
+            letter_dir = os.path.join(base_dir, letter)
+            if not os.path.exists(letter_dir):
+                os.mkdir(letter_dir)
+        
+        return True
+    except OSError as e:
+        print(f"❌ Error creating directories: {e}")
+        return False
 
-directory= 'SignImage48x48/'
-print(os.getcwd())
+def get_file_counts(base_dir):
+    """Get current file counts for all directories"""
+    counts = {}
+    try:
+        # Count files in A-Z directories
+        for letter in string.ascii_uppercase:
+            letter_dir = os.path.join(base_dir, letter)
+            counts[letter.lower()] = len(os.listdir(letter_dir)) if os.path.exists(letter_dir) else 0
+        
+        # Count blank files
+        blank_dir = os.path.join(base_dir, 'blank')
+        counts['blank'] = len(os.listdir(blank_dir)) if os.path.exists(blank_dir) else 0
+        
+        return counts
+    except OSError as e:
+        print(f"❌ Error reading directories: {e}")
+        return {}
 
-if not os.path.exists(directory):
-    os.mkdir(directory)
-if not os.path.exists(f'{directory}/blank'):
-    os.mkdir(f'{directory}/blank')
+def save_image(frame, directory, letter, count):
+    """Save the processed frame as an image"""
+    try:
+        filename = f"{count}.jpg"
+        filepath = os.path.join(directory, letter.upper(), filename)
+        if letter == 'blank':
+            filepath = os.path.join(directory, 'blank', filename)
+        
+        cv2.imwrite(filepath, frame)
+        print(f"✅ Saved {filepath}")
+        return True
+    except Exception as e:
+        print(f"❌ Error saving image: {e}")
+        return False
+
+def main():
+    directory = 'SignImage48x48/'
+    print(f"Current directory: {os.getcwd()}")
     
-
-for i in range(65,91):
-    letter  = chr(i)
-    if not os.path.exists(f'{directory}/{letter}'):
-        os.mkdir(f'{directory}/{letter}')
-
-
-
-
-import os
-import cv2
-cap=cv2.VideoCapture(0)
-while True:
-    _,frame=cap.read()
-    count = {
-             'a': len(os.listdir(directory+"/A")),
-             'b': len(os.listdir(directory+"/B")),
-             'c': len(os.listdir(directory+"/C")),
-             'd': len(os.listdir(directory+"/D")),
-             'e': len(os.listdir(directory+"/E")),
-             'f': len(os.listdir(directory+"/F")),
-             'g': len(os.listdir(directory+"/G")),
-             'h': len(os.listdir(directory+"/H")),
-             'i': len(os.listdir(directory+"/I")),
-             'j': len(os.listdir(directory+"/J")),
-             'k': len(os.listdir(directory+"/K")),
-             'l': len(os.listdir(directory+"/L")),
-             'm': len(os.listdir(directory+"/M")),
-             'n': len(os.listdir(directory+"/N")),
-             'o': len(os.listdir(directory+"/O")),
-             'p': len(os.listdir(directory+"/P")),
-             'q': len(os.listdir(directory+"/Q")),
-             'r': len(os.listdir(directory+"/R")),
-             's': len(os.listdir(directory+"/S")),
-             't': len(os.listdir(directory+"/T")),
-             'u': len(os.listdir(directory+"/U")),
-             'v': len(os.listdir(directory+"/V")),
-             'w': len(os.listdir(directory+"/W")),
-             'x': len(os.listdir(directory+"/X")),
-             'y': len(os.listdir(directory+"/Y")),
-             'z': len(os.listdir(directory+"/Z")),
-             'blank': len(os.listdir(directory+"/blank"))
-             }
-
-    row = frame.shape[1]
-    col = frame.shape[0]
-    cv2.rectangle(frame,(0,40),(300,300),(255,255,255),2)
-    cv2.imshow("data",frame)
-    frame=frame[40:300,0:300]
-    cv2.imshow("ROI",frame)
-    frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-    frame = cv2.resize(frame,(48,48))
-    interrupt = cv2.waitKey(10)
-    if interrupt & 0xFF == ord('a'):
-        cv2.imwrite(os.path.join(directory+'A/'+str(count['a']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('b'):
-        cv2.imwrite(os.path.join(directory+'B/'+str(count['b']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('c'):
-        cv2.imwrite(os.path.join(directory+'C/'+str(count['c']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('d'):
-        cv2.imwrite(os.path.join(directory+'D/'+str(count['d']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('e'):
-        cv2.imwrite(os.path.join(directory+'E/'+str(count['e']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('f'):
-        cv2.imwrite(os.path.join(directory+'F/'+str(count['f']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('g'):
-        cv2.imwrite(os.path.join(directory+'G/'+str(count['g']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('h'):
-        cv2.imwrite(os.path.join(directory+'H/'+str(count['h']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('i'):
-        cv2.imwrite(os.path.join(directory+'I/'+str(count['i']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('j'):
-        cv2.imwrite(os.path.join(directory+'J/'+str(count['j']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('k'):
-        cv2.imwrite(os.path.join(directory+'K/'+str(count['k']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('l'):
-        cv2.imwrite(os.path.join(directory+'L/'+str(count['l']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('m'):
-        cv2.imwrite(os.path.join(directory+'M/'+str(count['m']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('n'):
-        cv2.imwrite(os.path.join(directory+'N/'+str(count['n']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('o'):
-        cv2.imwrite(os.path.join(directory+'O/'+str(count['o']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('p'):
-        cv2.imwrite(os.path.join(directory+'P/'+str(count['p']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('q'):
-        cv2.imwrite(os.path.join(directory+'Q/'+str(count['q']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('r'):
-        cv2.imwrite(os.path.join(directory+'R/'+str(count['r']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('s'):
-        cv2.imwrite(os.path.join(directory+'S/'+str(count['s']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('t'):
-        cv2.imwrite(os.path.join(directory+'T/'+str(count['t']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('u'):
-        cv2.imwrite(os.path.join(directory+'U/'+str(count['u']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('v'):
-        cv2.imwrite(os.path.join(directory+'V/'+str(count['v']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('w'):
-        cv2.imwrite(os.path.join(directory+'W/'+str(count['w']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('x'):
-        cv2.imwrite(os.path.join(directory+'X/'+str(count['x']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('y'):
-        cv2.imwrite(os.path.join(directory+'Y/'+str(count['y']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('z'):
-        cv2.imwrite(os.path.join(directory+'Z/'+str(count['z']))+'.jpg',frame)
-    if interrupt & 0xFF == ord('.'):
-        cv2.imwrite(os.path.join(directory+'blank/' + str(count['blank']))+ '.jpg',frame)
-
-
+    # Setup directories
+    if not setup_directories(directory):
+        return
     
+    # Initialize camera
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("❌ Camera not detected")
+        return
+    
+    print("📹 Camera initialized successfully")
+    print("Instructions:")
+    print("- Press a-z to capture images for respective letters")
+    print("- Press '.' (period) to capture blank images")
+    print("- Press ESC to quit")
+    
+    # Get initial counts
+    counts = get_file_counts(directory)
+    
+    try:
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                print("❌ Failed to read from camera")
+                break
+            
+            # Draw ROI rectangle
+            cv2.rectangle(frame, (0, 40), (300, 300), (255, 255, 255), 2)
+            
+            # Show current counts on frame
+            y_offset = 320
+            for i, (key, count) in enumerate(counts.items()):
+                if i % 9 == 0 and i > 0:  # New line every 9 items
+                    y_offset += 20
+                x_pos = 10 + (i % 9) * 80
+                cv2.putText(frame, f"{key}:{count}", (x_pos, y_offset), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 1)
+            
+            cv2.imshow("Data Collection", frame)
+            
+            # Extract and process ROI
+            roi = frame[40:300, 0:300]
+            cv2.imshow("ROI", roi)
+            
+            # Convert to grayscale and resize
+            processed_frame = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+            processed_frame = cv2.resize(processed_frame, (48, 48))
+            
+            # Handle key presses
+            key = cv2.waitKey(1) & 0xFF
+            
+            # Quit conditions
+            if key == 27:  # ESC
+                break
+            
+            # Save images based on key press
+            elif key == ord('.'):  # Blank
+                if save_image(processed_frame, directory, 'blank', counts['blank']):
+                    counts['blank'] += 1
+            
+            elif key >= ord('a') and key <= ord('z'):  # Letters a-z
+                letter = chr(key)
+                if save_image(processed_frame, directory, letter, counts[letter]):
+                    counts[letter] += 1
+    
+    except KeyboardInterrupt:
+        print("\n⚠️ Interrupted by user")
+    
+    finally:
+        # Cleanup
+        cap.release()
+        cv2.destroyAllWindows()
+        print("🔒 Resources cleaned up")
+        
+        # Print final statistics
+        print("\n📊 Final Statistics:")
+        total_images = sum(counts.values())
+        for key, count in sorted(counts.items()):
+            print(f"{key.upper()}: {count} images")
+        print(f"Total: {total_images} images")
+
+if __name__ == "__main__":
+    main()
